@@ -1,0 +1,84 @@
+// Komentarze
+COMMENT: "@" /[^\n]*/ NEWLINE
+DOC_COMMENT: "@@" /[^\n]*/ NEWLINE
+BLOCK_COMMENT: "@*" /[^*]* "*@"
+
+// Słowa kluczowe
+IMPORT: "import"
+PUB: "pub"
+DEF: "def"
+DONE: "done"
+LET: "let"
+LOG: "log"
+UNSAFE: "unsafe"
+LOOP: "loop"
+FOR: "for"
+IN: "in"
+IF: "if"
+ELSE: "else"
+BREAK: "break"
+CONTINUE: "continue"
+END: "end"
+RETURN: "return"
+
+?start: program
+
+program: (import_stmt | function_def | statement)*
+
+import_stmt: IMPORT "<" import_path ">"
+import_path: /[^>]+/
+
+function_def: [PUB] DEF ID "(" param_list ")" [ "->" type ] block
+
+param_list: (param ("," param)*)?
+param: ID ":" type
+
+type: "i32" | "f64" | "str" | "bool" | "void" | ID
+
+block: statement* DONE
+
+statement: let_stmt
+| log_stmt
+| unsafe_block
+| if_stmt
+| loop_stmt
+| for_stmt
+| expr_stmt
+| break_stmt
+| continue_stmt
+| end_stmt
+
+let_stmt: LET ID ":" type "=" expr
+
+log_stmt: LOG expr
+
+unsafe_block: UNSAFE "{" block "}"
+
+if_stmt: IF expr block [ ELSE block ]
+
+loop_stmt: LOOP block
+
+for_stmt: FOR ID IN range block
+    range: expr ".." expr [ "=" ]?
+
+    break_stmt: BREAK
+    continue_stmt: CONTINUE
+
+    end_stmt: END expr
+
+    expr_stmt: expr
+
+    expr: term ( ("+"|"-") term )*
+    term: factor ( ("*"|"/") factor )*
+    factor: atom ("?")?
+    atom: INT | FLOAT | STRING | "true" | "false" | ID | "(" expr ")" | call
+
+    call: ID "(" arg_list ")"
+    arg_list: (expr ("," expr)*)?
+
+    INT: /-?[0-9]+/
+    FLOAT: /-?[0-9]+\.[0-9]+/
+    STRING: /"[^"]*"/
+    ID: /[a-zA-Z_][a-zA-Z0-9_]*/
+    WS: /[ \t\n\r]+/ -> skip
+    NEWLINE: /\n/
