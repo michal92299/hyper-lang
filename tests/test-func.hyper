@@ -1,0 +1,12 @@
+@ Testowa funkcja
+def add(a: i32, b: i32) -> i32
+    let result: i32 = a + b
+    end result
+done
+
+def main()
+    let x: i32 = 5
+    let y: i32 = 7
+    let sum: i32 = add(x, y)
+    log "Suma: " + sum
+done
